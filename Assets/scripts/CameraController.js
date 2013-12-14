@@ -1,3 +1,5 @@
+#pragma strict
+
 var pixelsPerUnit : float;
 var zoom = 1;
 
