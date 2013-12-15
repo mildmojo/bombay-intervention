@@ -93,7 +93,6 @@ class LevelManager extends ScriptableObject {
   private function unlockAllTimers() {
     Debug.Log('unlocking ' + _lockedTimers.Count + ' timers');
     for (var gameObject : GameObject in _lockedTimers.Clone()) {
-      Debug.Log('UNLOCKING');
       gameObject.SendMessage('Unlock');
     }
     _lockedTimers.Clear();
@@ -123,8 +122,6 @@ class LevelManager extends ScriptableObject {
 
         if (!timerScale) {
           timerScale = spriteScaleToFit(timer.gameObject, colCount, bucketWidth());
-          // TODO: Oops, infinity!
-          Debug.Log('scale: ' + timerScale);
         }
         timer.scale(timerScale);
         timer.left = timer.width * col * MARGIN_MULT_X;
