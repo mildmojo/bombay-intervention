@@ -20,7 +20,10 @@ class GameManager extends ScriptableObject {
   }
 
   function Update() {
-
+    // Quit on Escape.
+    if (Input.GetKeyDown(KeyCode.Escape)) {
+      Application.Quit();
+    }
   }
 
   function SetState(nextState : GameState) {
