@@ -6,6 +6,9 @@ var MARGIN_MULT_Y = 1.05;
 
 var TIMER_MATCH_MARGIN = 0.5;
 
+var FLAGS_PER_LEVEL = 2;
+var MATCHES_REQUIRED = 1;
+
 class LevelManager extends ScriptableObject {
   static var _instance : LevelManager;
   var _gameManager : GameManager;
@@ -14,6 +17,7 @@ class LevelManager extends ScriptableObject {
   var _timerMinTime = 15.0;
   var _timerMaxTime = 25.0;
   var _flagDeck : ShuffleDeck;
+  var _currentFlags : Sprite[];
 
   static function Instance() {
     if (!_instance) {
@@ -35,16 +39,13 @@ class LevelManager extends ScriptableObject {
   function StartLevel(rows : int, cols : int) {
     Debug.Log('Level is starting!');
     resetBoard();
+    selectFlags(FLAGS_PER_LEVEL);
     drawTimers(rows, cols);
   }
 
   function AddLockedTimer(gameObject : GameObject) {
     _lockedTimers.Add(gameObject);
-    if (lockedThreeSuccess()) {
-      celebrateVictory();
-    } else if (lockedThreeFail()) {
-      unlockAllTimers();
-    }
+    checkMatch();
   }
 
   function RemoveLockedTimer(gameObject : GameObject) {
@@ -57,42 +58,50 @@ class LevelManager extends ScriptableObject {
     restartTimer(gameObject);
   }
 
-  private function celebrateVictory() {
+  private function checkMatch() {
+    var allTimersMatch = lockedTimersMatch();
+    var enoughPicked = _lockedTimers.Count == MATCHES_REQUIRED;
+Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicked);
+    // Three possible states:
+    // - They don't match (fail)
+    // - Haven't picked 3 yet (do nothing)
+    // - Picked 3 and they match (win)
+    if (allTimersMatch) {
+      if (enoughPicked) {
+        victoryCelebrate();
+      }
+    } else {
+      failureWallow();
+    }
+  }
+
+  private function victoryCelebrate() {
     // Show victory message
     // If all victories complete, show level victory message/animation, go to
     //   next level.
-    iTween.Stop();
-    yield WaitForSeconds(0.1);
-    _root.BroadcastMessage('animDestroy');
     Debug.Log('WIN!');
+    iTween.Stop();
+    _root.BroadcastMessage('animDestroy');
   }
 
-  private function lockedThreeSuccess() : boolean {
-    var success = _lockedTimers.Count == 3;
-    var firstTimer = _lockedTimers[0] as GameObject;
-    var targetTime : float = (firstTimer.GetComponent('TimerCountdown') as TimerCountdown).timeLeft;
-    for (var gameObject : GameObject in _lockedTimers) {
-      var lockedTime : float = (gameObject.GetComponent('TimerCountdown') as TimerCountdown).timeLeft;
-      var diff = Mathf.Abs(lockedTime - targetTime);
-      if (diff > TIMER_MATCH_MARGIN) {
-        success = false;
-      }
-    }
-    return success;
+  private function failureWallow() {
+    unlockAllTimers();
   }
 
-  private function lockedThreeFail() : boolean {
-    var failure = false;
+  private function lockedTimersMatch() : boolean {
+    var allMatch = true;
     var firstTimer = _lockedTimers[0] as GameObject;
-    var targetTime : float = (firstTimer.GetComponent('TimerCountdown') as TimerCountdown).timeLeft;
+    var targetTime : float = firstTimer.GetComponent.<TimerCountdown>().timeLeft;
+    var targetCountry = firstTimer.GetComponent.<FlagManager>().countryName;
+
     for (var gameObject : GameObject in _lockedTimers) {
-      var lockedTime : float = (gameObject.GetComponent('TimerCountdown') as TimerCountdown).timeLeft;
+      var lockedTime = gameObject.GetComponent.<TimerCountdown>().timeLeft;
       var diff = Mathf.Abs(lockedTime - targetTime);
-      if (diff > TIMER_MATCH_MARGIN) {
-        failure = true;
-      }
+      var country = gameObject.GetComponent.<FlagManager>().countryName;
+      allMatch = allMatch && diff <= TIMER_MATCH_MARGIN && country == targetCountry;
     }
-    return failure;
+
+    return allMatch;
   }
 
   private function unlockAllTimers() {
@@ -110,6 +119,11 @@ class LevelManager extends ScriptableObject {
       UnityEngine.Object.Destroy(_root);
     }
     _root = new GameObject('TimerBoard');
+  }
+
+  private function selectFlags(count) {
+    _currentFlags = new Sprite[count];
+    _flagDeck.draw(count).CopyTo(_currentFlags);
   }
 
   // Instantiate timers/belts
@@ -134,7 +148,7 @@ class LevelManager extends ScriptableObject {
         timer.parent = belt.transform;
         randomizeTimer(timer.gameObject);
       }
-      belt.transform.position.y = timer.height * row * MARGIN_MULT_Y;
+      belt.transform.position.y = timer.height * (row + 1) * MARGIN_MULT_Y;
       belt.transform.parent = _root.transform;
     }
 
@@ -156,7 +170,10 @@ private function createBelt() : GameObject {
 }
 
 private function createTimer() : TwoDee {
-  return new TwoDee(GameObject.Instantiate(Resources.Load('TimerSprite')));
+  var timer = GameObject.Instantiate(Resources.Load('TimerSprite'));
+  randomizeTimer(timer);
+  addFlagToTimer(timer);
+  return new TwoDee(timer);
 }
 
 private function bucketWidth() : float {
@@ -178,15 +195,22 @@ private function randomizeTimer(timer : GameObject) {
   timerCountdown.RandomizeCapacity(_timerMinTime, _timerMaxTime);
 }
 
+private function addFlagToTimer(timer : GameObject) {
+  var flagManager = timer.GetComponent.<FlagManager>();
+  var flag = _currentFlags[Random.Range(0, _currentFlags.Length)];
+  flagManager.setFlag(flag);
+}
+
 private function restartTimer(timer : GameObject) {
   var timerCountdown = timer.GetComponent('TimerCountdown') as TimerCountdown;
   timerCountdown.Restart();
 }
 
 private function loadFlags() {
-  var flags = Resources.LoadAll.<Texture2D>('flags');
+  var flags = Resources.LoadAll.<Sprite>('flags');
   for (var flag in flags) {
-    flag.name = flag.name.Replace('_', ' ');
+    flag.texture.name = flag.texture.name.Replace('_', ' ');
   }
   _flagDeck = new ShuffleDeck(flags);
+  Debug.Log('FLAGS LOADED');
 }

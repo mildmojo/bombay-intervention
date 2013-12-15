@@ -32,7 +32,7 @@ class GameManager extends ScriptableObject {
       case GameState.Menu:
         break;
       case GameState.Game:
-        _levelManager.StartLevel(7, 5);
+        _levelManager.StartLevel(2, 3);
         break;
     }
     _state = nextState;
