@@ -13,6 +13,7 @@ class LevelManager extends ScriptableObject {
   var _lockedTimers = new ArrayList();
   var _timerMinTime = 15.0;
   var _timerMaxTime = 25.0;
+  var _flagDeck : ShuffleDeck;
 
   static function Instance() {
     if (!_instance) {
@@ -25,6 +26,10 @@ class LevelManager extends ScriptableObject {
     Instance();
     _instance._gameManager = gameManager;
     return _instance;
+  }
+
+  function OnEnable() {
+    loadFlags();
   }
 
   function StartLevel(rows : int, cols : int) {
@@ -176,4 +181,12 @@ private function randomizeTimer(timer : GameObject) {
 private function restartTimer(timer : GameObject) {
   var timerCountdown = timer.GetComponent('TimerCountdown') as TimerCountdown;
   timerCountdown.Restart();
+}
+
+private function loadFlags() {
+  var flags = Resources.LoadAll.<Texture2D>('flags');
+  for (var flag in flags) {
+    flag.name = flag.name.Replace('_', ' ');
+  }
+  _flagDeck = new ShuffleDeck(flags);
 }
