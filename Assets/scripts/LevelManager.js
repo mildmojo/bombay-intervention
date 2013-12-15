@@ -1,6 +1,6 @@
 #pragma strict
 
-var BUCKET_ASPECT_RATIO = 1 / 1.5; // x / y
+var BUCKET_ASPECT_RATIO = 1.0 / 1.5; // x / y
 var MARGIN_MULT_X = 1.05;
 var MARGIN_MULT_Y = 1.05;
 
@@ -10,7 +10,9 @@ class LevelManager extends ScriptableObject {
   static var _instance : LevelManager;
   var _gameManager : GameManager;
   var _root : GameObject;
-  var _lockedTimers = new Hashtable();
+  var _lockedTimers = new ArrayList();
+  var _timerMinTime = 15.0;
+  var _timerMaxTime = 25.0;
 
   static function Instance() {
     if (!_instance) {
@@ -31,22 +33,41 @@ class LevelManager extends ScriptableObject {
     drawTimers(rows, cols);
   }
 
-  function AddLockedTimer(gameObject : GameObject, lockedAt : int) {
-    _lockedTimers[gameObject] = lockedAt;
+  function AddLockedTimer(gameObject : GameObject) {
+    _lockedTimers.Add(gameObject);
     if (lockedThreeSuccess()) {
-      _root.BroadcastMessage('animDestroy');
-      Debug.Log('WIN!');
+      celebrateVictory();
     } else if (lockedThreeFail()) {
       unlockAllTimers();
     }
   }
 
+  function RemoveLockedTimer(gameObject : GameObject) {
+    _lockedTimers.Remove(gameObject);
+  }
+
+  function RecycleTimer(gameObject : GameObject) {
+    // TODO: change out flag/country from this level's group
+    randomizeTimer(gameObject);
+    restartTimer(gameObject);
+  }
+
+  private function celebrateVictory() {
+    // Show victory message
+    // If all victories complete, show level victory message/animation, go to
+    //   next level.
+    iTween.Stop();
+    yield WaitForSeconds(0.1);
+    _root.BroadcastMessage('animDestroy');
+    Debug.Log('WIN!');
+  }
+
   private function lockedThreeSuccess() : boolean {
     var success = _lockedTimers.Count == 3;
-    var targetTime : float;
-    for (var gameObject : GameObject in _lockedTimers.Keys) {
-      if (!targetTime) targetTime = _lockedTimers[gameObject];
-      var lockedTime : float = _lockedTimers[gameObject];
+    var firstTimer = _lockedTimers[0] as GameObject;
+    var targetTime : float = (firstTimer.GetComponent('TimerCountdown') as TimerCountdown).timeLeft;
+    for (var gameObject : GameObject in _lockedTimers) {
+      var lockedTime : float = (gameObject.GetComponent('TimerCountdown') as TimerCountdown).timeLeft;
       var diff = Mathf.Abs(lockedTime - targetTime);
       if (diff > TIMER_MATCH_MARGIN) {
         success = false;
@@ -57,10 +78,10 @@ class LevelManager extends ScriptableObject {
 
   private function lockedThreeFail() : boolean {
     var failure = false;
-    var targetTime : float;
-    for (var gameObject : GameObject in _lockedTimers.Keys) {
-      if (!targetTime) targetTime = _lockedTimers[gameObject];
-      var lockedTime : float = _lockedTimers[gameObject];
+    var firstTimer = _lockedTimers[0] as GameObject;
+    var targetTime : float = (firstTimer.GetComponent('TimerCountdown') as TimerCountdown).timeLeft;
+    for (var gameObject : GameObject in _lockedTimers) {
+      var lockedTime : float = (gameObject.GetComponent('TimerCountdown') as TimerCountdown).timeLeft;
       var diff = Mathf.Abs(lockedTime - targetTime);
       if (diff > TIMER_MATCH_MARGIN) {
         failure = true;
@@ -70,7 +91,9 @@ class LevelManager extends ScriptableObject {
   }
 
   private function unlockAllTimers() {
-    for (var gameObject : GameObject in _lockedTimers.Keys) {
+    Debug.Log('unlocking ' + _lockedTimers.Count + ' timers');
+    for (var gameObject : GameObject in _lockedTimers.Clone()) {
+      Debug.Log('UNLOCKING');
       gameObject.SendMessage('Unlock');
     }
     _lockedTimers.Clear();
@@ -93,20 +116,21 @@ class LevelManager extends ScriptableObject {
     var timerScale : float;
 
     for (var row = 0; row < rowCount; row++) {
-      belt = new GameObject('Belt');
-      belt.transform.position = Vector2.zero;
+      belt = createBelt();
 
       for (var col = 0; col < colCount; col++) {
         timer = createTimer();
 
         if (!timerScale) {
           timerScale = spriteScaleToFit(timer.gameObject, colCount, bucketWidth());
+          // TODO: Oops, infinity!
+          Debug.Log('scale: ' + timerScale);
         }
         timer.scale(timerScale);
         timer.left = timer.width * col * MARGIN_MULT_X;
         timer.top = 0;
         timer.parent = belt.transform;
-        (timer.gameObject.GetComponent('TimerCountdown') as TimerCountdown).RandomizeCapacity(15.0, 25.0);
+        randomizeTimer(timer.gameObject);
       }
       belt.transform.position.y = timer.height * row * MARGIN_MULT_Y;
       belt.transform.parent = _root.transform;
@@ -122,20 +146,39 @@ private function viewportHeight() {
   return Camera.main.orthographicSize * 2;
 }
 
+private function createBelt() : GameObject {
+  // TODO: attach scrolling script or instantiate scrolling prefab (meh)
+  var belt = new GameObject('Belt');
+  belt.transform.position = Vector2.zero;
+  return belt;
+}
+
 private function createTimer() : TwoDee {
   return new TwoDee(GameObject.Instantiate(Resources.Load('TimerSprite')));
 }
 
 private function bucketWidth() : float {
-  return Camera.main.ViewportToWorldPoint(Vector3(0,1,0)).y / BUCKET_ASPECT_RATIO;
+  return Camera.main.ViewportToWorldPoint(Vector3(0,1,0)).y * BUCKET_ASPECT_RATIO;
 }
 
 private function spriteScaleToFit(sprite, count : int, maxWidth : float) : float {
+  Debug.Log('maxWidth: ' + maxWidth + ', count: ' + count);
   var targetWidth = maxWidth / count;
   var currentWidth = dimensions(sprite).x;
+  Debug.Log('targetWidth: ' + targetWidth + ', currentWidth: ' + currentWidth);
   return targetWidth / currentWidth;
 }
 
 private function dimensions(sprite : GameObject) {
   return sprite.renderer.bounds.size;
+}
+
+private function randomizeTimer(timer : GameObject) {
+  var timerCountdown = timer.GetComponent('TimerCountdown') as TimerCountdown;
+  timerCountdown.RandomizeCapacity(_timerMinTime, _timerMaxTime);
+}
+
+private function restartTimer(timer : GameObject) {
+  var timerCountdown = timer.GetComponent('TimerCountdown') as TimerCountdown;
+  timerCountdown.Restart();
 }
