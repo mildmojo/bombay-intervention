@@ -91,7 +91,7 @@ class LevelManager extends ScriptableObject {
   }
 
   private function unlockAllTimers() {
-    Debug.Log('unlocking ' + _lockedTimers.Count + ' timers');
+    // Clone list so 'Unlock' can't trigger changes to the array while iterating.
     for (var gameObject : GameObject in _lockedTimers.Clone()) {
       gameObject.SendMessage('Unlock');
     }
@@ -159,10 +159,8 @@ private function bucketWidth() : float {
 }
 
 private function spriteScaleToFit(sprite, count : int, maxWidth : float) : float {
-  Debug.Log('maxWidth: ' + maxWidth + ', count: ' + count);
   var targetWidth = maxWidth / count;
   var currentWidth = dimensions(sprite).x;
-  Debug.Log('targetWidth: ' + targetWidth + ', currentWidth: ' + currentWidth);
   return targetWidth / currentWidth;
 }
 

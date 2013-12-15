@@ -15,10 +15,10 @@ private var _lastCapacityMax : float;
 
 function Start () {
   _startedAt = Time.time;
-  _timeText = transform.Find('TimerText').GetComponent('TextMesh') as TextMesh;
-  _timeTextDark = transform.Find('TimerTextDark').GetComponent('TextMesh') as TextMesh;
-  _timerAnimator = gameObject.GetComponent('TimerAnimator') as TimerAnimator;
-  _highlight = transform.Find('Highlight').GetComponent('SpriteRenderer') as SpriteRenderer;
+  _timeText = transform.Find('TimerText').GetComponent.<TextMesh>();
+  _timeTextDark = transform.Find('TimerTextDark').GetComponent.<TextMesh>();
+  _timerAnimator = gameObject.GetComponent.<TimerAnimator>();
+  _highlight = transform.Find('Highlight').GetComponent.<SpriteRenderer>();
   _levelManager = LevelManager.Instance();
 }
 
