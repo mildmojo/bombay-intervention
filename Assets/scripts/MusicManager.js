@@ -6,6 +6,9 @@ public var tracks : MultitrackAudio[];
 @HideInInspector
 public var isPlaying : boolean;
 
+@HideInInspector
+public var maxVolume = 0.9;
+
 private var _gameManager : GameManager;
 private var _levelManager : LevelManager;
 private var _trackDeck : ShuffleDeck;
@@ -63,7 +66,7 @@ function cueNextTrack(callback : function()) {
 function play() {
   if (!isPlaying) {
     // Debug.Log('PLAYING music from ' + _currentSources.Count + ' sources');
-    (_currentSources[0] as AudioSource).volume = 1.0;
+    (_currentSources[0] as AudioSource).volume = maxVolume;
     eachSource(function(source) {
       source.Play();
     });
@@ -79,7 +82,7 @@ function playMore() {
       if (!done && source.volume < 0.05) {
         iTween.AudioTo(_turntable, iTween.Hash(
           'audiosource', source
-          ,'volume', 1.0
+          ,'volume', maxVolume
           ,'time', 1.0
         ));
         done = true;
@@ -95,7 +98,7 @@ function playLess() {
       if (!done && source.volume > 0.1) {
         iTween.AudioTo(_turntable, iTween.Hash(
           'audiosource', source
-          ,'volume', 1.0
+          ,'volume', 0.0
           ,'time', 1.0
         ));
         done = true;

@@ -12,6 +12,7 @@ var MATCHES_REQUIRED = 3;
 class LevelManager extends ScriptableObject {
   static var _instance : LevelManager;
   var _gameManager : GameManager;
+  var _levelTimer : GameObject;
   var _root : GameObject;
   var _instanceInitialized = false;
   var _lockedTimers = new ArrayList();
@@ -40,6 +41,7 @@ class LevelManager extends ScriptableObject {
     if (!_instanceInitialized) {
       loadFlags();
       loadMusic();
+      _levelTimer = GameObject.Instantiate(Resources.Load('LevelTimer'));
     }
   }
 
