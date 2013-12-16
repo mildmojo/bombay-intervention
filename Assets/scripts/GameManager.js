@@ -1,11 +1,12 @@
 ﻿#pragma strict
 
 class GameManager extends ScriptableObject {
-  static var _instance : GameManager;
-  var _levelManager : LevelManager;
-
   enum GameState { Menu, Game };
-  var _state : GameState;
+
+  private static var _instance : GameManager;
+  private var _levelManager : LevelManager;
+  private var _state : GameState;
+  private var _instanceInitialized = false;
 
   static function Instance() {
     if (!_instance) {
@@ -15,8 +16,10 @@ class GameManager extends ScriptableObject {
   }
 
   function OnEnable() {
-    _levelManager = LevelManager.Instance(this);
-    SetState(GameState.Game);
+    if (!_instanceInitialized) {
+      _levelManager = LevelManager.Instance(this);
+      SetState(GameState.Menu);
+    }
   }
 
   function Update() {

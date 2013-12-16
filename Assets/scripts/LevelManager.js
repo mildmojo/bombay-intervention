@@ -7,16 +7,20 @@ var MARGIN_MULT_Y = 1.05;
 var TIMER_MATCH_MARGIN = 0.5;
 
 var FLAGS_PER_LEVEL = 2;
-var MATCHES_REQUIRED = 1;
+var MATCHES_REQUIRED = 3;
 
 class LevelManager extends ScriptableObject {
   static var _instance : LevelManager;
   var _gameManager : GameManager;
   var _root : GameObject;
+  var _instanceInitialized = false;
   var _lockedTimers = new ArrayList();
   var _timerMinTime = 15.0;
   var _timerMaxTime = 25.0;
+  var _stageNumber = 1;
+  var _missionStageCount = 4;
   var _flagDeck : ShuffleDeck;
+  var _musicManager : MusicManager;
   var _currentFlags : Sprite[];
 
   static function Instance() {
@@ -33,19 +37,25 @@ class LevelManager extends ScriptableObject {
   }
 
   function OnEnable() {
-    loadFlags();
+    if (!_instanceInitialized) {
+      loadFlags();
+      loadMusic();
+    }
   }
 
   function StartLevel(rows : int, cols : int) {
     Debug.Log('Level is starting!');
     resetBoard();
+    resetLevelState();
     selectFlags(FLAGS_PER_LEVEL);
     drawTimers(rows, cols);
+    startMusic();
   }
 
   function AddLockedTimer(gameObject : GameObject) {
     _lockedTimers.Add(gameObject);
     checkMatch();
+    _musicManager.playMore();
   }
 
   function RemoveLockedTimer(gameObject : GameObject) {
@@ -61,17 +71,26 @@ class LevelManager extends ScriptableObject {
   private function checkMatch() {
     var allTimersMatch = lockedTimersMatch();
     var enoughPicked = _lockedTimers.Count == MATCHES_REQUIRED;
-Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicked);
+// Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicked);
+
     // Three possible states:
     // - They don't match (fail)
     // - Haven't picked 3 yet (do nothing)
     // - Picked 3 and they match (win)
     if (allTimersMatch) {
       if (enoughPicked) {
-        victoryCelebrate();
+        nextStage();
       }
     } else {
-      failureWallow();
+      failMatch();
+    }
+  }
+
+  private function nextStage() {
+    _stageNumber++;
+    Debug.Log('STAGE ' + _stageNumber);
+    if (_stageNumber > _missionStageCount) {
+      victoryCelebrate();
     }
   }
 
@@ -84,7 +103,7 @@ Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicke
     _root.BroadcastMessage('animDestroy');
   }
 
-  private function failureWallow() {
+  private function failMatch() {
     unlockAllTimers();
   }
 
@@ -119,6 +138,10 @@ Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicke
       UnityEngine.Object.Destroy(_root);
     }
     _root = new GameObject('TimerBoard');
+  }
+
+  private function resetLevelState() {
+    _stageNumber = 1;
   }
 
   private function selectFlags(count) {
@@ -156,10 +179,6 @@ Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicke
     var boardHeight = timer.height * rowCount * MARGIN_MULT_Y;
     _root.transform.Translate((Screen2D.worldWidth() - boardWidth) / 2.0, 0, 0);
   }
-}
-
-private function viewportHeight() {
-  return Camera.main.orthographicSize * 2;
 }
 
 private function createBelt() : GameObject {
@@ -213,4 +232,20 @@ private function loadFlags() {
   }
   _flagDeck = new ShuffleDeck(flags);
   Debug.Log('FLAGS LOADED');
+}
+
+private function loadMusic() {
+  _musicManager = Camera.main.GetComponent.<MusicManager>();
+}
+
+private function startMusic() {
+  _musicManager.play();
+}
+
+private function stopMusic() {
+  _musicManager.fadeStop();
+}
+
+private function musicNext() {
+  _musicManager.cueNextTrack();
 }

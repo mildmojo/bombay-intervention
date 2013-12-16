@@ -42,6 +42,8 @@ class ShuffleDeck {
   }
 
   function draw() {
+    if (_cards.Count == 0) return null;
+
     if (_nextCard >= _cards.Count) {
       reshuffle();
     }
