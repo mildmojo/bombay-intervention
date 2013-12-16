@@ -2,7 +2,7 @@
 
 private var _gameManager : GameManager;
 
-function Start () {
+function Awake () {
   // Start the game manager, which starts everything else.
   _gameManager = GameManager.Instance();
 }

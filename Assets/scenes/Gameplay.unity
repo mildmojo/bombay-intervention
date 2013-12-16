@@ -126,7 +126,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: .192156866, g: .301960796, b: .474509805, a: .0196078438}
+  m_BackGroundColor: {r: .0161656514, g: .0756469667, b: .16911763, a: .0196078438}
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -199,6 +199,8 @@ MonoBehaviour:
     - {fileID: 8300000, guid: d18833a433d7a6841b06985f2fd2ef26, type: 3}
     - {fileID: 8300000, guid: 517500d1a466e2440bdae959c8a9604a, type: 3}
   isPlaying: 0
+  maxVolume: .899999976
+  isLoaded: 0
 --- !u!82 &314531168
 AudioSource:
   m_ObjectHideFlags: 0

@@ -25,7 +25,7 @@ function SnapToViewportTop() {
         break;
     }
   }
-Debug.Log('snapping Y to ' + y);
+
   var oldPos = transform.position;
   transform.position = Vector3(oldPos.x, y, oldPos.z);
 }

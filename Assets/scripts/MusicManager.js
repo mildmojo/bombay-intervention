@@ -9,6 +9,9 @@ public var isPlaying : boolean;
 @HideInInspector
 public var maxVolume = 0.9;
 
+@HideInInspector
+public var isLoaded = false;
+
 private var _gameManager : GameManager;
 private var _levelManager : LevelManager;
 private var _trackDeck : ShuffleDeck;
@@ -25,9 +28,9 @@ function Awake () {
   _gameManager = GameManager.Instance();
   _levelManager = LevelManager.Instance();
   _trackDeck = new ShuffleDeck(tracks);
-Debug.Log('ADDED ' + _trackDeck.Count + ' tracks to track deck');
   _currentSources = new ArrayList();
   createTurntable();
+  isLoaded = true;
 }
 
 function Update () {
@@ -41,7 +44,7 @@ function createTurntable() {
   _turntable = new GameObject('turntable');
   _turntable.transform.position = Camera.main.transform.position;
   _turntable.transform.parent = Camera.main.transform;
-  cueNextTrack();
+  initNewTrack();
 }
 
 function playNextTrack() {
@@ -55,10 +58,7 @@ function cueNextTrack() {
 }
 function cueNextTrack(callback : function()) {
   fadeStop(function() {
-    _currentTrack = _trackDeck.draw() as MultitrackAudio;
-    // Debug.Log('LOADED a track with ' + _currentTrack.clips.Length + ' clips');
-    destroySources();
-    createSources();
+    initNewTrack();
     callback();
   });
 }
@@ -134,20 +134,25 @@ function stop() {
   }
 }
 
-function fadePlay() { fadePlay(null); }
+function fadePlay() { fadePlay(function(){}, null); }
 function fadePlay(fadeTime : float) {
   fadeStop(function(){}, fadeTime);
 }
 function fadePlay(callback : function()) { fadePlay(callback, null); }
+// TODO: Calling this method directly w/callback and fade time triggers:
+//   VerificationException: Error verifying GameManager:showMenu (): Incompatible
+//   this argument on stack. Expected UnityEngine.MonoBehaviour but found
+//   GameManager ([this] Complex) at 0x0047
 function fadePlay(callback : function(), fadeTime) {
+  // New var to convert to float.
+  var fadeTimeSecs : float = isPlaying ? 0.0 : (fadeTime || 1.0);
+  Debug.Log('Fading in over ' + fadeTimeSecs + ' seconds');
+
   // Start in silence.
   var oldMax = maxVolume;
   maxVolume = 0;
   play();
   maxVolume = oldMax;
-
-  // New var to convert to float.
-  var fadeTimeSecs : float = isPlaying ? 0.0 : (fadeTime || 1.0);
 
   iTween.AudioTo(_turntable, iTween.Hash(
     'audiosource', _currentSources[0]
@@ -158,7 +163,7 @@ function fadePlay(callback : function(), fadeTime) {
   callback();
 }
 
-function fadeStop() { fadeStop(null) ; }
+function fadeStop() { fadeStop(function(){}, null) ; }
 function fadeStop(fadeTime : float) {
   fadeStop(function(){}, fadeTime);
 }
@@ -177,6 +182,13 @@ function fadeStop(callback : function(), fadeTime) {
   yield WaitForSeconds(fadeTimeSecs + 0.1);
   stop();
   callback();
+}
+
+private function initNewTrack() {
+  _currentTrack = _trackDeck.draw() as MultitrackAudio;
+  // Debug.Log('LOADED a track with ' + _currentTrack.clips.Length + ' clips');
+  destroySources();
+  createSources();
 }
 
 private function eachSource(callback : function(AudioSource)) {
@@ -202,10 +214,13 @@ private function createSources() {
     _currentSources.Add(source);
     // Debug.Log('createdSource, now have: ' + _currentSources.Count);
   }
+
 }
 
 private function destroySources() {
   eachSource(function(source) {
+    // Debug.Log('destroying source');
     Destroy(source);
   });
+  _currentSources.Clear();
 }

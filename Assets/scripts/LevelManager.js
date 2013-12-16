@@ -12,7 +12,7 @@ var MATCHES_REQUIRED = 3;
 class LevelManager extends ScriptableObject {
   static var _instance : LevelManager;
   var _gameManager : GameManager;
-  var _levelTimer : GameObject;
+  var _levelTimerText : TextMesh;
   var _root : GameObject;
   var _instanceInitialized = false;
   var _lockedTimers = new ArrayList();
@@ -20,6 +20,7 @@ class LevelManager extends ScriptableObject {
   var _timerMaxTime = 25.0;
   var _stageNumber = 1;
   var _missionStageCount = 4;
+  var _missionTimeLimit = 120;
   var _flagDeck : ShuffleDeck;
   var _musicManager : MusicManager;
   var _currentFlags : Sprite[];
@@ -41,7 +42,6 @@ class LevelManager extends ScriptableObject {
     if (!_instanceInitialized) {
       loadFlags();
       loadMusic();
-      _levelTimer = GameObject.Instantiate(Resources.Load('LevelTimer'));
     }
   }
 
@@ -51,6 +51,7 @@ class LevelManager extends ScriptableObject {
     resetLevelState();
     selectFlags(FLAGS_PER_LEVEL);
     drawTimers(rows, cols);
+    startLevelTimer();
     startMusic();
   }
 
@@ -70,6 +71,11 @@ class LevelManager extends ScriptableObject {
   function GetTimerFlag() {
     var flag = _currentFlags[Random.Range(0, _currentFlags.Length)];
     return flag;
+  }
+
+  function LevelTimerExpired() {
+    // Do stuff when level timer expires. fail mission.
+    failMission();
   }
 
   private function checkMatch() {
@@ -119,14 +125,19 @@ Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicke
     unlockAllTimers();
   }
 
+  private function failMission() {
+    // TODO: bad stuff when mission fails. back to menu.
+    _gameManager.SetState(GameManager.GameState.Menu);
+  }
+
   private function lockedTimersMatch() : boolean {
     var allMatch = true;
     var firstTimer = _lockedTimers[0] as GameObject;
-    var targetTime : float = firstTimer.GetComponent.<TimerCountdown>().timeLeft;
+    var targetTime : int = firstTimer.GetComponent.<TimerCountdown>().timeLeft;
     var targetCountry = firstTimer.GetComponent.<FlagManager>().countryName;
 
     for (var gameObject : GameObject in _lockedTimers) {
-      var lockedTime = gameObject.GetComponent.<TimerCountdown>().timeLeft;
+      var lockedTime : int = gameObject.GetComponent.<TimerCountdown>().timeLeft;
       var diff = Mathf.Abs(lockedTime - targetTime);
       var country = gameObject.GetComponent.<FlagManager>().countryName;
       allMatch = allMatch && diff <= TIMER_MATCH_MARGIN && country == targetCountry;
@@ -147,7 +158,10 @@ Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicke
   private function resetBoard() {
     _root = GameObject.Find('TimerRoot') as GameObject;
     if (_root) {
-      UnityEngine.Object.Destroy(_root);
+      Destroy(_root);
+    }
+    if (_levelTimerText) {
+      Destroy(_levelTimerText.gameObject);
     }
     _root = new GameObject('TimerBoard');
   }
@@ -220,7 +234,7 @@ private function dimensions(sprite : GameObject) {
 }
 
 private function randomizeTimer(timer : GameObject) {
-  var timerCountdown = timer.GetComponent('TimerCountdown') as TimerCountdown;
+  var timerCountdown = timer.GetComponent.<TimerCountdown>();
   timerCountdown.RandomizeCapacity(_timerMinTime, _timerMaxTime);
 }
 
@@ -235,6 +249,18 @@ private function loadFlags() {
 
 private function loadMusic() {
   _musicManager = Camera.main.GetComponent.<MusicManager>();
+}
+
+private function startLevelTimer() {
+  if (!_levelTimerText) {
+    var levelTimer : GameObject = GameObject.Instantiate(Resources.Load('LevelTimer'));
+    _levelTimerText = levelTimer.GetComponent.<TextMesh>();
+    var box = new TwoDee(levelTimer);
+    box.x = Screen2D.worldWidth() + box.width;
+    box.y = Screen2D.worldHeight() + box.height;
+  }
+  var countdown = _levelTimerText.gameObject.GetComponent.<LevelTimerCountdown>();
+  countdown.countdownFrom(_missionTimeLimit);
 }
 
 private function startMusic() {

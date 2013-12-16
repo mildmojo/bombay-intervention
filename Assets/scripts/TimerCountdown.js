@@ -32,8 +32,9 @@ function Update () {
   }
 
   if (timeLeft > 0) {
-    _timeText.text = timeLeft.ToString('f1');
-    _timeTextDark.text = timeLeft.ToString('00.0');
+    var timeDisplay = isLocked ? parseInt(timeLeft) : timeLeft;
+    _timeText.text = timeDisplay.ToString('f1');
+    _timeTextDark.text = timeDisplay.ToString('00.0');
   } else {
     RecycleTimer();
   }
@@ -64,7 +65,6 @@ Debug.Log('isLocked: ' + isLocked);
 function Lock() {
   if (!isDying) {
     isLocked = true;
-    timeLeft = Mathf.Round(timeLeft);
     ShowHighlight();
     _levelManager.AddLockedTimer(gameObject);
   }

@@ -25,7 +25,12 @@ function SnapToViewportRight() {
         break;
     }
   }
-Debug.Log('snapping X to ' + x);
+
   var oldPos = frame.position;
-  transform.position = Vector3(x, oldPos.y, oldPos.z);
+  iTween.MoveTo(gameObject, iTween.Hash(
+    'position', Vector3(x, oldPos.y, oldPos.z)
+    ,'time', 1.0
+    ,'easetype', 'easeOutQuad'
+  ));
+  // transform.position = Vector3(x, oldPos.y, oldPos.z);
 }
