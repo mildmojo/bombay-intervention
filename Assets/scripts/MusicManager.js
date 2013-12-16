@@ -91,7 +91,7 @@ function playMore() {
   }
 }
 
-function playLess() {
+function playFewer() {
   if (isPlaying) {
     var done = false;
     eachSourceReverse(function(source) {
@@ -134,21 +134,48 @@ function stop() {
   }
 }
 
-function fadeStop() {
-  fadeStop(function(){});
+function fadePlay() { fadePlay(null); }
+function fadePlay(fadeTime : float) {
+  fadeStop(function(){}, fadeTime);
 }
-function fadeStop(callback : function()) {
-  var fadeTime = isPlaying ? 0.5 : 0.0;
+function fadePlay(callback : function()) { fadePlay(callback, null); }
+function fadePlay(callback : function(), fadeTime) {
+  // Start in silence.
+  var oldMax = maxVolume;
+  maxVolume = 0;
+  play();
+  maxVolume = oldMax;
+
+  // New var to convert to float.
+  var fadeTimeSecs : float = isPlaying ? 0.0 : (fadeTime || 1.0);
+
+  iTween.AudioTo(_turntable, iTween.Hash(
+    'audiosource', _currentSources[0]
+    ,'volume', maxVolume
+    ,'time', fadeTimeSecs
+  ));
+  yield WaitForSeconds(fadeTimeSecs + 0.1);
+  callback();
+}
+
+function fadeStop() { fadeStop(null) ; }
+function fadeStop(fadeTime : float) {
+  fadeStop(function(){}, fadeTime);
+}
+function fadeStop(callback : function()) { fadeStop(callback, null); }
+function fadeStop(callback : function(), fadeTime) {
+  // New var to convert to float.
+  var fadeTimeSecs : float = isPlaying ? (fadeTime || 0.5) : 0.0;
 
   for (var source in _currentSources) {
     iTween.AudioTo(_turntable, iTween.Hash(
       'audiosource', source
       ,'volume', 0
-      ,'time', fadeTime
+      ,'time', fadeTimeSecs
     ));
   }
-  yield WaitForSeconds(fadeTime + 0.1);
-  isPlaying = false;
+  yield WaitForSeconds(fadeTimeSecs + 0.1);
+  stop();
   callback();
 }
 
