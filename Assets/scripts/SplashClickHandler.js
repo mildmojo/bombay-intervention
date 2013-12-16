@@ -1,6 +1,7 @@
 #pragma strict
 
 private var _gameManager : GameManager;
+private var _isTriggered = false;
 
 function Start() {
   _gameManager = GameManager.Instance();
@@ -11,8 +12,10 @@ function Update() {
 }
 
 function OnMouseDown() {
-Debug.Log('CLICK!');
-  rollAway();
+  if (!_isTriggered) {
+    rollAway();
+    _isTriggered = true;
+  }
 }
 
 private function rollAway() {

@@ -10,16 +10,18 @@ private var _timeTextDark : TextMesh;
 private var _timerAnimator : TimerAnimator;
 private var _highlight : SpriteRenderer;
 private var _levelManager : LevelManager;
+private var _flagManager : FlagManager;
 private var _lastCapacityMin : float;
 private var _lastCapacityMax : float;
 
 function Start () {
-  _startedAt = Time.time;
   _timeText = transform.Find('TimerText').GetComponent.<TextMesh>();
   _timeTextDark = transform.Find('TimerTextDark').GetComponent.<TextMesh>();
   _timerAnimator = gameObject.GetComponent.<TimerAnimator>();
+  _flagManager = gameObject.GetComponent.<FlagManager>();
   _highlight = transform.Find('Highlight').GetComponent.<SpriteRenderer>();
   _levelManager = LevelManager.Instance();
+  resetTimerSettings();
 }
 
 function Update () {
@@ -33,13 +35,15 @@ function Update () {
     _timeText.text = timeLeft.ToString('f1');
     _timeTextDark.text = timeLeft.ToString('00.0');
   } else {
-    isDying = true;
-    _timerAnimator.animRecycle(function(){
-      _levelManager.RecycleTimer(gameObject);
-      isDying = false;
-      isLocked = false;
-    });
+    RecycleTimer();
   }
+}
+
+function RecycleTimer() {
+  isDying = true;
+  _timerAnimator.animRecycle(function(){
+    resetTimerSettings();
+  });
 }
 
 function RandomizeCapacity(min : float, max : float) {
@@ -49,6 +53,7 @@ function RandomizeCapacity(min : float, max : float) {
 }
 
 function OnMouseDown() {
+Debug.Log('isLocked: ' + isLocked);
   if (!isLocked) {
     Lock();
   } else {
@@ -57,22 +62,21 @@ function OnMouseDown() {
 }
 
 function Lock() {
-  isLocked = true;
-  timeLeft = Mathf.Round(timeLeft);
-  ShowHighlight();
-  _levelManager.AddLockedTimer(gameObject);
+  if (!isDying) {
+    isLocked = true;
+    timeLeft = Mathf.Round(timeLeft);
+    ShowHighlight();
+    _levelManager.AddLockedTimer(gameObject);
+  }
 }
 
 function Unlock() {
-  isLocked = false;
-  timeCapacity = timeLeft;
-  Restart();
-  HideHighlight();
-  _levelManager.RemoveLockedTimer(gameObject);
-}
-
-function Restart() {
-  _startedAt = Time.time;
+  if (!isDying) {
+    _startedAt = Time.time - (timeCapacity - timeLeft);
+    HideHighlight();
+    _levelManager.RemoveLockedTimer(gameObject);
+    isLocked = false;
+  }
 }
 
 function ShowHighlight() {
@@ -81,4 +85,14 @@ function ShowHighlight() {
 
 function HideHighlight() {
   _highlight.enabled = false;
+}
+
+private function resetTimerSettings() {
+  isDying = false;
+  isLocked = false;
+  HideHighlight();
+  var newFlag = _levelManager.GetTimerFlag();
+  _flagManager.setFlag(newFlag);
+  timeCapacity = _levelManager.GetTimerCapacity();
+  _startedAt = Time.time;
 }

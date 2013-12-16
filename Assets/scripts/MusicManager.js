@@ -53,7 +53,7 @@ function cueNextTrack() {
 function cueNextTrack(callback : function()) {
   fadeStop(function() {
     _currentTrack = _trackDeck.draw() as MultitrackAudio;
-Debug.Log('LOADED a track with ' + _currentTrack.clips.Length + ' clips');
+    // Debug.Log('LOADED a track with ' + _currentTrack.clips.Length + ' clips');
     destroySources();
     createSources();
     callback();
@@ -62,7 +62,7 @@ Debug.Log('LOADED a track with ' + _currentTrack.clips.Length + ' clips');
 
 function play() {
   if (!isPlaying) {
-    Debug.Log('PLAYING music from ' + _currentSources.Count + ' sources');
+    // Debug.Log('PLAYING music from ' + _currentSources.Count + ' sources');
     (_currentSources[0] as AudioSource).volume = 1.0;
     eachSource(function(source) {
       source.Play();
@@ -92,7 +92,7 @@ function playLess() {
   if (isPlaying) {
     var done = false;
     eachSourceReverse(function(source) {
-      if (!done && source.volume > 0.5) {
+      if (!done && source.volume > 0.1) {
         iTween.AudioTo(_turntable, iTween.Hash(
           'audiosource', source
           ,'volume', 1.0
@@ -164,18 +164,13 @@ private function eachSourceReverse(callback : function(AudioSource)) {
 }
 
 private function createSources() {
-  Debug.Log('creating sources for ' + _currentTrack.clips.Length + ' clips');
   for (var i = 0; i < _currentTrack.clips.Length; i++) {
     var source = _turntable.AddComponent('AudioSource') as AudioSource;
     source.playOnAwake = false;
-Debug.Log('Drawing from ' + _currentTrack.clipDeck.Count + ' clips');
-    var clip = _currentTrack.clipDeck.draw() as AudioClip;
-Debug.Log('source ' + i + ': ' + clip.name);
-    // source.clip = _currentTrack.clipDeck.draw() as AudioClip;
-    source.clip = clip;
+    source.clip = _currentTrack.clipDeck.draw() as AudioClip;
     source.volume = 0;
     _currentSources.Add(source);
-    Debug.Log('createdSource, now have: ' + _currentSources.Count);
+    // Debug.Log('createdSource, now have: ' + _currentSources.Count);
   }
 }
 

@@ -55,23 +55,26 @@ class LevelManager extends ScriptableObject {
   function AddLockedTimer(gameObject : GameObject) {
     _lockedTimers.Add(gameObject);
     checkMatch();
-    _musicManager.playMore();
   }
 
   function RemoveLockedTimer(gameObject : GameObject) {
     _lockedTimers.Remove(gameObject);
   }
 
-  function RecycleTimer(gameObject : GameObject) {
-    // TODO: change out flag/country from this level's group
-    randomizeTimer(gameObject);
-    restartTimer(gameObject);
+  function GetTimerCapacity() {
+    return Random.Range(_timerMinTime, _timerMaxTime);
+  }
+
+  function GetTimerFlag() {
+    var flag = _currentFlags[Random.Range(0, _currentFlags.Length)];
+    return flag;
   }
 
   private function checkMatch() {
     var allTimersMatch = lockedTimersMatch();
     var enoughPicked = _lockedTimers.Count == MATCHES_REQUIRED;
-// Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicked);
+Debug.Log('lockedTimers.Count: ' + _lockedTimers.Count);
+Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicked);
 
     // Three possible states:
     // - They don't match (fail)
@@ -89,8 +92,15 @@ class LevelManager extends ScriptableObject {
   private function nextStage() {
     _stageNumber++;
     Debug.Log('STAGE ' + _stageNumber);
+
     if (_stageNumber > _missionStageCount) {
       victoryCelebrate();
+    } else {
+      for (var timer : GameObject in _lockedTimers) {
+        timer.SendMessage('RecycleTimer');
+      }
+      unlockAllTimers();
+      _musicManager.playMore();
     }
   }
 
@@ -190,8 +200,6 @@ private function createBelt() : GameObject {
 
 private function createTimer() : TwoDee {
   var timer = GameObject.Instantiate(Resources.Load('TimerSprite'));
-  randomizeTimer(timer);
-  addFlagToTimer(timer);
   return new TwoDee(timer);
 }
 
@@ -212,17 +220,6 @@ private function dimensions(sprite : GameObject) {
 private function randomizeTimer(timer : GameObject) {
   var timerCountdown = timer.GetComponent('TimerCountdown') as TimerCountdown;
   timerCountdown.RandomizeCapacity(_timerMinTime, _timerMaxTime);
-}
-
-private function addFlagToTimer(timer : GameObject) {
-  var flagManager = timer.GetComponent.<FlagManager>();
-  var flag = _currentFlags[Random.Range(0, _currentFlags.Length)];
-  flagManager.setFlag(flag);
-}
-
-private function restartTimer(timer : GameObject) {
-  var timerCountdown = timer.GetComponent('TimerCountdown') as TimerCountdown;
-  timerCountdown.Restart();
 }
 
 private function loadFlags() {
