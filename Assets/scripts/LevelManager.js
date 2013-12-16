@@ -1,6 +1,6 @@
 #pragma strict
 
-var BUCKET_ASPECT_RATIO = 1.0 / 1.5; // x / y
+var BUCKET_ASPECT_RATIO = 1.0 / 1.25; // x / y
 var MARGIN_MULT_X = 1.05;
 var MARGIN_MULT_Y = 1.05;
 
