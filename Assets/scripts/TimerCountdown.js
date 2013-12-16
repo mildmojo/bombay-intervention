@@ -25,9 +25,7 @@ function Start () {
 }
 
 function Update () {
-  if (isDying) return;
-
-  if (!isLocked) {
+  if (!isLocked && !isDying) {
     timeLeft = (timeCapacity - (Time.time - _startedAt));
   }
 
@@ -35,7 +33,7 @@ function Update () {
     var timeDisplay = isLocked ? parseInt(timeLeft) : timeLeft;
     _timeText.text = timeDisplay.ToString('f1');
     _timeTextDark.text = timeDisplay.ToString('00.0');
-  } else {
+  } else if (!isDying) {
     RecycleTimer();
   }
 }
