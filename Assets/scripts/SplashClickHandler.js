@@ -25,7 +25,7 @@ private function rollAway() {
     ,'time', 1.0
   ));
   iTween.MoveTo(gameObject, iTween.Hash(
-    'position', transform.position + Vector3(-Screen2D.worldWidth(),0,0)
+    'position', transform.position + Vector3(-Screen2D.worldWidth() * 1.5,0,0)
     ,'easetype', 'easeInOutBack'
     ,'time', 1.0
   ));
