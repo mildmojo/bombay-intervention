@@ -89,6 +89,7 @@ GameObject:
   - 114: {fileID: 314531166}
   - 82: {fileID: 314531168}
   - 114: {fileID: 314531167}
+  - 114: {fileID: 314531169}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -209,7 +210,7 @@ AudioSource:
   m_GameObject: {fileID: 314531160}
   m_Enabled: 1
   serializedVersion: 3
-  m_audioClip: {fileID: 8300000, guid: 2897c506e4677144b852004cbd6a47dd, type: 3}
+  m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -259,6 +260,23 @@ AudioSource:
       tangentMode: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
+--- !u!114 &314531169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 314531160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9829858db9bc89545b08e3fed080e0bb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  LockedTimer: {fileID: 8300000, guid: a32acf96b47f0b34fad103a632bf9d8e, type: 3}
+  MissionSuccess: {fileID: 8300000, guid: 1d1f87748206c904db96cf3f43dfcfc0, type: 3}
+  MissionFail: {fileID: 8300000, guid: ca9c4953085499441ac8e161b42b763f, type: 3}
+  MatchSuccess: {fileID: 8300000, guid: 5048b7c53f83fea4b85b956153d41459, type: 3}
+  MatchFail: {fileID: 8300000, guid: 92ebd4fd08f88a14584752aac9e2fe82, type: 3}
+  UnlockedTimer: {fileID: 8300000, guid: ec6feedbd233c8c4b94401997dca95cd, type: 3}
 --- !u!1 &664097196
 GameObject:
   m_ObjectHideFlags: 0

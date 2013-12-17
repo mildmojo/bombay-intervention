@@ -13,6 +13,7 @@ class LevelManager extends ScriptableObject {
   static var _instance : LevelManager;
   var _gameManager : GameManager;
   var _levelTimerText : TextMesh;
+  var _sfx : SoundEffects;
   var _root : GameObject;
   var _instanceInitialized = false;
   var _lockedTimers = new ArrayList();
@@ -42,6 +43,7 @@ class LevelManager extends ScriptableObject {
     if (!_instanceInitialized) {
       loadFlags();
       loadMusic();
+      _sfx = Camera.main.GetComponent.<SoundEffects>();
     }
   }
 
@@ -90,9 +92,11 @@ Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicke
     // - Picked 3 and they match (win)
     if (allTimersMatch) {
       if (enoughPicked) {
+        _sfx.play('MatchSuccess');
         nextStage();
       }
     } else {
+      _sfx.play('MatchFail');
       failMatch();
     }
   }
@@ -113,9 +117,11 @@ Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicke
   }
 
   private function victoryCelebrate() {
-    // Show victory message
-    // If all victories complete, show level victory message/animation, go to
+    // If all stages complete, show mission victory message/animation, go to
     //   next level.
+    // stopLevelTimer();
+    // showMissionSuccess();
+    _sfx.play('MissionSuccess');
     Debug.Log('WIN!');
     iTween.Stop();
     _root.BroadcastMessage('animDestroy');
@@ -127,6 +133,7 @@ Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicke
 
   private function failMission() {
     // TODO: bad stuff when mission fails. back to menu.
+    _sfx.play('MissionFail');
     _gameManager.SetState(GameManager.GameState.Menu);
   }
 
@@ -261,6 +268,10 @@ private function startLevelTimer() {
   }
   var countdown = _levelTimerText.gameObject.GetComponent.<LevelTimerCountdown>();
   countdown.countdownFrom(_missionTimeLimit);
+}
+
+private function stopLevelTimer() {
+
 }
 
 private function startMusic() {

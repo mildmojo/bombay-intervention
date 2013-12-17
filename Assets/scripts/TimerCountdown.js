@@ -11,6 +11,7 @@ private var _timerAnimator : TimerAnimator;
 private var _highlight : SpriteRenderer;
 private var _levelManager : LevelManager;
 private var _flagManager : FlagManager;
+private var _sfx : SoundEffects;
 private var _lastCapacityMin : float;
 private var _lastCapacityMax : float;
 
@@ -21,6 +22,7 @@ function Start () {
   _flagManager = gameObject.GetComponent.<FlagManager>();
   _highlight = transform.Find('Highlight').GetComponent.<SpriteRenderer>();
   _levelManager = LevelManager.Instance();
+  _sfx = Camera.main.GetComponent.<SoundEffects>();
   resetTimerSettings();
 }
 
@@ -55,8 +57,10 @@ function OnMouseDown() {
 Debug.Log('isLocked: ' + isLocked);
   if (!isLocked) {
     Lock();
+    _sfx.play('LockedTimer');
   } else {
     Unlock();
+    _sfx.play('UnlockedTimer');
   }
 }
 

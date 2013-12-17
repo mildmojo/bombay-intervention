@@ -1,7 +1,7 @@
 ﻿#pragma strict
 
 class GameManager extends ScriptableObject {
-  enum GameState { Menu, Game };
+  enum GameState { Menu, Game, Quit };
 
   private static var _instance : GameManager;
   private var _levelManager : LevelManager;
@@ -30,12 +30,13 @@ class GameManager extends ScriptableObject {
 
   function Update() {
     if (!_stateInitialized && _musicManager.isLoaded) {
+      initApp();
       SetState(GameState.Menu);
       _stateInitialized = true;
     }
     // Quit on Escape.
     if (Input.GetKeyDown(KeyCode.Escape)) {
-      Application.Quit();
+      SetState(GameState.Quit);
     }
     if (Input.GetKeyDown(KeyCode.M)) {
       _audioOutput.volume = 1 - _audioOutput.volume;
@@ -57,6 +58,16 @@ class GameManager extends ScriptableObject {
           });
         });
         break;
+      case GameState.Quit:
+        _musicManager.fadeStop();
+        iTween.CameraFadeTo(iTween.Hash(
+          'amount', 1.0
+          ,'time', 1.0
+          ,'oncomplete', 'GameQuit'
+          ,'oncompletetarget', GameObject.Find('Loader')
+          ,'ignoretimescale', true
+        ));
+        break;
     }
     _state = nextState;
   }
@@ -65,13 +76,17 @@ class GameManager extends ScriptableObject {
     return _state;
   }
 
-  private function showMenu() {
+  private function initApp() {
     iTween.CameraFadeAdd();
     iTween.CameraFadeFrom(1.0, 1.0);
     _musicManager.maxVolume = 0.5;
     _musicManager.fadePlay(function(){
       _musicManager.playMore();
     });
+  }
+
+  private function showMenu() {
+
   }
 
   private function hideMenu() {

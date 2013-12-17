@@ -10,3 +10,9 @@ function Awake () {
 function Update() {
   _gameManager.Update();
 }
+
+function GameQuit() {
+  Debug.Log('Quittin!');
+  Application.Quit();
+}
+
