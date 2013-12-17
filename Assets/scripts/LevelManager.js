@@ -82,6 +82,19 @@ class LevelManager extends ScriptableObject {
     failMission();
   }
 
+  function stopLevelTimer() {
+    if (_levelTimerText) {
+      var countdown = _levelTimerText.gameObject.GetComponent.<LevelTimerCountdown>();
+      countdown.stopTimer();
+    }
+  }
+
+  function destroyLevelTimer() {
+    if (_levelTimerText) {
+      Destroy(_levelTimerText.gameObject);
+    }
+  }
+
   private function checkMatch() {
     var allTimersMatch = lockedTimersMatch();
     var enoughPicked = _lockedTimers.Count == MATCHES_REQUIRED;
@@ -144,9 +157,19 @@ Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicke
 
   private function failMission() {
     // TODO: bad stuff when mission fails. back to menu.
+    _musicManager.fadeStop();
     _sfx.play('MissionFail');
+    Debug.Log('FAIL!');
+    iTween.Stop();
+    _root.BroadcastMessage('animDestroy');
+    stopLevelTimer();
+    showMissionFail();
+  }
+
+  private function showMissionFail() {
     var failMessage = MissionPack.Failures.draw();
     showBannerText(failMessage, function() {
+      resetBoard();
       _gameManager.SetState(GameManager.GameState.Menu);
     });
   }
@@ -184,14 +207,13 @@ Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicke
 
   // Clear old board
   function resetBoard() {
+    Debug.Log('Resetting board state.');
     _root = GameObject.Find('TimerRoot') as GameObject;
     if (_root) {
       Destroy(_root);
     }
-    if (_levelTimerText) {
-      Destroy(_levelTimerText.gameObject);
-    }
-    _root = new GameObject('TimerBoard');
+    _root = new GameObject('TimerRoot');
+    destroyLevelTimer();
   }
 
   private function resetLevelState() {
@@ -290,16 +312,6 @@ private function startLevelTimer() {
   }
   var countdown = _levelTimerText.gameObject.GetComponent.<LevelTimerCountdown>();
   countdown.countdownFrom(_missionTimeLimit);
-}
-
-function stopLevelTimer() {
-  if (_levelTimerText) {
-    var countdown = _levelTimerText.gameObject.GetComponent.<LevelTimerCountdown>();
-    countdown.stopTimer();
-    var box = new TwoDee(_levelTimerText.gameObject);
-    box.x = Screen2D.worldWidth() + box.width;
-    box.y = Screen2D.worldHeight() + box.height;
-  }
 }
 
 private function startMusic() {

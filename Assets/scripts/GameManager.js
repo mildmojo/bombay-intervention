@@ -1,7 +1,7 @@
 ﻿#pragma strict
 
 class GameManager extends ScriptableObject {
-  enum GameState { Menu, Game, Quit };
+  enum GameState { Init, Menu, Game, Quit };
 
   private static var _instance : GameManager;
   private var _levelManager : LevelManager;
@@ -36,7 +36,7 @@ class GameManager extends ScriptableObject {
     }
     // Quit on Escape.
     if (Input.GetKeyDown(KeyCode.Escape)) {
-      #if UNITY_WEBPLAYER
+      #if UNITY_WEBPLAYER || UNITY_EDITOR
         SetState(GameState.Menu);
       #else
         SetState(GameState.Quit);
@@ -48,11 +48,11 @@ class GameManager extends ScriptableObject {
   }
 
   function SetState(nextState : GameState) {
+    Debug.Log('Game state: ' + _state.ToString() + ' to ' + nextState.ToString());
     if (nextState == _state) return;
-    Debug.Log('Game state: ' + nextState.ToString());
     switch(nextState) {
       case GameState.Menu:
-        _levelManager.stopLevelTimer();
+        _levelManager.resetBoard();
         showMenu();
         break;
       case GameState.Game:

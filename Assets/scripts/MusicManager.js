@@ -3,10 +3,10 @@
 // Configure track list in editor.
 public var tracks : MultitrackAudio[];
 
-@HideInInspector
+// @HideInInspector
 public var isPlaying : boolean;
 
-@HideInInspector
+// @HideInInspector
 public var maxVolume = 0.75;
 
 @HideInInspector
@@ -146,7 +146,7 @@ function fadePlay(callback : function()) { fadePlay(callback, null); }
 function fadePlay(callback : function(), fadeTime) {
   // New var to convert to float.
   var fadeTimeSecs : float = isPlaying ? 0.0 : (fadeTime || 1.0);
-  Debug.Log('Fading in over ' + fadeTimeSecs + ' seconds');
+  Debug.Log('Fading in over ' + fadeTimeSecs + ' seconds to ' + maxVolume);
 
   // Start in silence.
   var oldMax = maxVolume;
