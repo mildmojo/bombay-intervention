@@ -48,9 +48,11 @@ class GameManager extends ScriptableObject {
   }
 
   function SetState(nextState : GameState) {
+    if (nextState == _state) return;
     Debug.Log('Game state: ' + nextState.ToString());
     switch(nextState) {
       case GameState.Menu:
+        _levelManager.stopLevelTimer();
         showMenu();
         break;
       case GameState.Game:
@@ -83,14 +85,22 @@ class GameManager extends ScriptableObject {
   private function initApp() {
     iTween.CameraFadeAdd();
     iTween.CameraFadeFrom(1.0, 1.0);
-    _musicManager.maxVolume = 0.5;
-    _musicManager.fadePlay(function(){
-      _musicManager.playMore();
-    });
   }
 
   private function showMenu() {
-
+    Debug.Log('showing menu!');
+    _musicManager.fadeStop(function() {
+      _musicManager.maxVolume = 0.25;
+      _musicManager.fadePlay(function(){
+        _musicManager.playMore();
+      });
+    });
+    var centerPosition = Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, _splash.transform.position.z);
+    iTween.MoveTo(_splash, iTween.Hash(
+      'position', centerPosition
+      ,'easetype', 'easeInOutBack'
+      ,'time', 1.0
+    ));
   }
 
   private function hideMenu() {

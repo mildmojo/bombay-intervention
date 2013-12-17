@@ -7,7 +7,7 @@ public var tracks : MultitrackAudio[];
 public var isPlaying : boolean;
 
 @HideInInspector
-public var maxVolume = 0.9;
+public var maxVolume = 0.75;
 
 @HideInInspector
 public var isLoaded = false;

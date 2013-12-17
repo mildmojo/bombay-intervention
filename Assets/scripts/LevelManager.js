@@ -14,6 +14,7 @@ class LevelManager extends ScriptableObject {
   var _gameManager : GameManager;
   var _levelTimerText : TextMesh;
   var _sfx : SoundEffects;
+  var _bannerText : BannerTextManager;
   var _root : GameObject;
   var _instanceInitialized = false;
   var _lockedTimers = new ArrayList();
@@ -44,6 +45,7 @@ class LevelManager extends ScriptableObject {
       loadFlags();
       loadMusic();
       _sfx = Camera.main.GetComponent.<SoundEffects>();
+      _bannerText = Camera.main.transform.Find('BannerText').GetComponent.<BannerTextManager>();
     }
   }
 
@@ -119,12 +121,21 @@ Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicke
   private function victoryCelebrate() {
     // If all stages complete, show mission victory message/animation, go to
     //   next level.
-    // stopLevelTimer();
-    // showMissionSuccess();
+    _musicManager.fadeStop();
     _sfx.play('MissionSuccess');
     Debug.Log('WIN!');
     iTween.Stop();
     _root.BroadcastMessage('animDestroy');
+    stopLevelTimer();
+    showMissionSuccess();
+  }
+
+  private function showMissionSuccess() {
+    var text = 'You have averted the ' + MissionPack.Cities.draw() + ' ' + MissionPack.Crises.draw() + '!';
+    showBannerText(text, function() {
+      resetBoard();
+      _gameManager.SetState(GameManager.GameState.Menu);
+    });
   }
 
   private function failMatch() {
@@ -134,8 +145,18 @@ Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicke
   private function failMission() {
     // TODO: bad stuff when mission fails. back to menu.
     _sfx.play('MissionFail');
-    _gameManager.SetState(GameManager.GameState.Menu);
+    var failMessage = MissionPack.Failures.draw();
+    showBannerText(failMessage, function() {
+      _gameManager.SetState(GameManager.GameState.Menu);
+    });
   }
+
+  private function showBannerText(text, callback) {
+    _bannerText.registerDismissCallback(callback);
+    _bannerText.setText(text);
+    _bannerText.show();
+  }
+
 
   private function lockedTimersMatch() : boolean {
     var allMatch = true;
@@ -162,7 +183,7 @@ Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicke
   }
 
   // Clear old board
-  private function resetBoard() {
+  function resetBoard() {
     _root = GameObject.Find('TimerRoot') as GameObject;
     if (_root) {
       Destroy(_root);
@@ -175,6 +196,7 @@ Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicke
 
   private function resetLevelState() {
     _stageNumber = 1;
+    _lockedTimers.Clear();
   }
 
   private function selectFlags(count) {
@@ -262,7 +284,7 @@ private function startLevelTimer() {
   if (!_levelTimerText) {
     var levelTimer : GameObject = GameObject.Instantiate(Resources.Load('LevelTimer'));
     _levelTimerText = levelTimer.GetComponent.<TextMesh>();
-    var box = new TwoDee(levelTimer);
+    var box = new TwoDee(_levelTimerText.gameObject);
     box.x = Screen2D.worldWidth() + box.width;
     box.y = Screen2D.worldHeight() + box.height;
   }
@@ -270,8 +292,14 @@ private function startLevelTimer() {
   countdown.countdownFrom(_missionTimeLimit);
 }
 
-private function stopLevelTimer() {
-
+function stopLevelTimer() {
+  if (_levelTimerText) {
+    var countdown = _levelTimerText.gameObject.GetComponent.<LevelTimerCountdown>();
+    countdown.stopTimer();
+    var box = new TwoDee(_levelTimerText.gameObject);
+    box.x = Screen2D.worldWidth() + box.width;
+    box.y = Screen2D.worldHeight() + box.height;
+  }
 }
 
 private function startMusic() {

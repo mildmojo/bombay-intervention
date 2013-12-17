@@ -38,6 +38,10 @@ function startTimer() {
   isRunning = true;
 }
 
+function stopTimer() {
+  isRunning = false;
+}
+
 function countdownFrom(timeLimit : int) {
   timeCapacity = timeLimit;
   _startedAt = Time.time;
