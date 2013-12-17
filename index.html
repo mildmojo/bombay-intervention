@@ -1,141 +1,217 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<title>Unity Web Player | bombay-intervention</title>
-		<script type='text/javascript' src='https://ssl-webplayer.unity3d.com/download_webplayer-3.x/3.0/uo/jquery.min.js'></script>
-		<script type="text/javascript">
-		<!--
-		var unityObjectUrl = "http://webplayer.unity3d.com/download_webplayer-3.x/3.0/uo/UnityObject2.js";
-		if (document.location.protocol == 'https:')
-			unityObjectUrl = unityObjectUrl.replace("http://", "https://ssl-");
-		document.write('<script type="text\/javascript" src="' + unityObjectUrl + '"><\/script>');
-		-->
-		</script>
-		<script type="text/javascript">
-		<!--
-			var config = {
-				width: 960,
-				height: 600,
-				params: { enableDebugging:"0" }
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unity Web Player | bombay-intervention</title>
+    <script type='text/javascript' src='https://ssl-webplayer.unity3d.com/download_webplayer-3.x/3.0/uo/jquery.min.js'></script>
+    <script type="text/javascript">
+    <!--
+    var unityObjectUrl = "http://webplayer.unity3d.com/download_webplayer-3.x/3.0/uo/UnityObject2.js";
+    if (document.location.protocol == 'https:')
+      unityObjectUrl = unityObjectUrl.replace("http://", "https://ssl-");
+    document.write('<script type="text\/javascript" src="' + unityObjectUrl + '"><\/script>');
+    -->
+    </script>
+    <script type="text/javascript">
+    <!--
+      var config = {
+        width: 960,
+        height: 600,
+        params: { enableDebugging:"0" }
 
-			};
-			var u = new UnityObject2(config);
+      };
+      var u = new UnityObject2(config);
 
-			jQuery(function() {
+      jQuery(function() {
 
-				var $missingScreen = jQuery("#unityPlayer").find(".missing");
-				var $brokenScreen = jQuery("#unityPlayer").find(".broken");
-				$missingScreen.hide();
-				$brokenScreen.hide();
+        var $missingScreen = jQuery("#unityPlayer").find(".missing");
+        var $brokenScreen = jQuery("#unityPlayer").find(".broken");
+        $missingScreen.hide();
+        $brokenScreen.hide();
 
-				u.observeProgress(function (progress) {
-					switch(progress.pluginStatus) {
-						case "broken":
-							$brokenScreen.find("a").click(function (e) {
-								e.stopPropagation();
-								e.preventDefault();
-								u.installPlugin();
-								return false;
-							});
-							$brokenScreen.show();
-						break;
-						case "missing":
-							$missingScreen.find("a").click(function (e) {
-								e.stopPropagation();
-								e.preventDefault();
-								u.installPlugin();
-								return false;
-							});
-							$missingScreen.show();
-						break;
-						case "installed":
-							$missingScreen.remove();
-						break;
-						case "first":
-						break;
-					}
-				});
-				u.initPlugin(jQuery("#unityPlayer")[0], "bombay-intervention.unity3d");
-			});
-		-->
-		</script>
-		<style type="text/css">
-		<!--
-		body {
-			font-family: Helvetica, Verdana, Arial, sans-serif;
-			background-color: black;
-			color: white;
-			text-align: center;
-		}
-		a:link, a:visited {
-			color: #A22;
-		}
-		a:active, a:hover {
-			color: #F55;
-		}
-		p.header {
-			font-size: small;
-		}
-		p.header span {
-			font-weight: bold;
-		}
-		p.footer {
-			font-size: x-small;
-		}
-		div.content {
-			margin: auto;
-			width: 960px;
-		}
-		div.broken,
-		div.missing {
-			margin: auto;
-			position: relative;
-			top: 50%;
-			width: 193px;
-		}
-		div.broken a,
-		div.missing a {
-			height: 63px;
-			position: relative;
-			top: -31px;
-		}
-		div.broken img,
-		div.missing img {
-			border-width: 0px;
-		}
-		div.broken {
-			display: none;
-		}
-		div#unityPlayer {
-			cursor: default;
-			height: 600px;
-			width: 960px;
-		}
-		-->
-		</style>
-	</head>
-	<body>
-		<div class="content">
-			<div id="unityPlayer">
-				<div class="missing">
-					<a href="http://unity3d.com/webplayer/" title="Unity Web Player. Install now!">
-						<img alt="Unity Web Player. Install now!" src="http://webplayer.unity3d.com/installation/getunity.png" width="193" height="63" />
-					</a>
-				</div>
-				<div class="broken">
-					<a href="http://unity3d.com/webplayer/" title="Unity Web Player. Install now! Restart your browser after install.">
-						<img alt="Unity Web Player. Install now! Restart your browser after install." src="http://webplayer.unity3d.com/installation/getunityrestart.png" width="193" height="63" />
-					</a>
-				</div>
-			</div>
-			<div>
-				<h2>The Bombay Intervention</h2>
-				<p>Press M to mute.</p>
-				<p>Downloads:</p>
-				<a href="bombay-intervention-win32-0.8.zip">Windows x86</a>
-			</div>
-		</div>
-		<p class="footer">&laquo; created for <a href="http://ludumdare.com/compo">Ludum Dare 28</a> &raquo;</p>
-	</body>
+        u.observeProgress(function (progress) {
+          switch(progress.pluginStatus) {
+            case "broken":
+              $brokenScreen.find("a").click(function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+                u.installPlugin();
+                return false;
+              });
+              $brokenScreen.show();
+            break;
+            case "missing":
+              $missingScreen.find("a").click(function (e) {
+                e.stopPropagation();
+                e.preventDefault();
+                u.installPlugin();
+                return false;
+              });
+              $missingScreen.show();
+            break;
+            case "installed":
+              $missingScreen.remove();
+            break;
+            case "first":
+            break;
+          }
+        });
+        u.initPlugin(jQuery("#unityPlayer")[0], "bombay-intervention.unity3d");
+      });
+    -->
+    </script>
+    <style type="text/css">
+    <!--
+    body {
+      font-family: Helvetica, Verdana, Arial, sans-serif;
+      background-color: #111;
+      color: white;
+      text-align: center;
+    }
+    a:link, a:visited {
+      color: #C55;
+    }
+    a:active, a:hover {
+      color: #F55;
+    }
+    p.header {
+      font-size: small;
+    }
+    p.header span {
+      font-weight: bold;
+    }
+    p.footer {
+      font-size: x-small;
+    }
+    div.content {
+      margin: auto;
+      width: 960px;
+    }
+    div.broken,
+    div.missing {
+      margin: auto;
+      position: relative;
+      top: 50%;
+      width: 193px;
+    }
+    div.broken a,
+    div.missing a {
+      height: 63px;
+      position: relative;
+      top: -31px;
+    }
+    div.broken img,
+    div.missing img {
+      border-width: 0px;
+    }
+    div.broken {
+      display: none;
+    }
+    div#unityPlayer {
+      cursor: default;
+      height: 600px;
+      width: 960px;
+    }
+    div.details, div.downloads {
+      text-align: left;
+    }
+    -->
+    </style>
+  </head>
+  <body>
+    <div class="content">
+      <div id="unityPlayer">
+        <div class="missing">
+          <a href="http://unity3d.com/webplayer/" title="Unity Web Player. Install now!">
+            <img alt="Unity Web Player. Install now!" src="http://webplayer.unity3d.com/installation/getunity.png" width="193" height="63" />
+          </a>
+        </div>
+        <div class="broken">
+          <a href="http://unity3d.com/webplayer/" title="Unity Web Player. Install now! Restart your browser after install.">
+            <img alt="Unity Web Player. Install now! Restart your browser after install." src="http://webplayer.unity3d.com/installation/getunityrestart.png" width="193" height="63" />
+          </a>
+        </div>
+      </div>
+      <div>
+        <h2>The Bombay Intervention</h2>
+        <p><small>Press M to mute.</small></p>
+      </div>
+      <div class="instructions">
+        <p>
+          Travel back in time and avert disaster.<br>
+          Click timers to freeze events and change history.<br>
+          Freeze 3 to the same number and country and complete one stage of the mission.<br>
+          Your mission has 4 stages.<br>
+          You have 2 minutes!<br>
+        </p>
+
+        <p>Be cautious... you only get one time machine.</p>
+      </div>
+      <div class="downloads">
+        <h3>Downloads:</h3>
+        <p>
+          <a href="bombay-intervention-linux32-0.8.zip">Linux</a><br>
+          <a href="bombay-intervention-win32-0.8.zip">Windows</a><br>
+          <a href="bombay-intervention-osx-0.8.zip">OS X</a><br>
+          <a href="bombay-intervention-android-0.8.apk">Android</a><br>
+          (<a href="https://github.com/mildmojo/bombay-intervention">source</a>)<br>
+        </p>
+      </div>
+      <div class="details">
+        <h3>Details</h3>
+        The Bombay Intervention was a collaboration between <a href="http://jasonmize.com">Jason Mize</a>
+        and mildmojo (<a href="https://twitter.com/mildmojo">twitter</a>,
+        <a href="https://github.com/mildmojo">github</a>,
+        <a href="http://www.ludumdare.com/compo/author/mildmojo/">ld48</a>) for
+        Ludum Dare 28: You Only Get One. Please visit our
+        <a href="http://www.ludumdare.com/compo/ludum-dare-28/?action=preview&uid=32157">submission page</a>
+        if you'd like to vote or leave us a comment.
+
+        <h3>Solemn Duties</h3>
+        <p>
+          Jason Mize: music, sfx, sweet title card, writing, game design<br>
+          mildmojo: code, game design<br>
+        </p>
+
+        <h3>Premise</h3>
+        <p>
+          You play as a time traveler, working your way through a spotted history on
+          missions to clean up the worst of the (fictional) disasters. Your view of the
+          past is through an event wall that shows you when events will occur during your
+          trip. These events could be as mundane as a bus driver heading to work or as
+          important as a world leader coming to power; you only know that patterns in the
+          wall lead to catastrophes.
+        </p>
+        <p>
+          If you freeze several events in the same general place and time, you prune that
+          timeline out of history. Prune enough contributing timelines and you'll find
+          that the crisis collapses without causal support.
+        </p>
+        <p>
+          The original kernel of a game idea was inspired by the card game, Set.
+        </p>
+
+        <h3>Dynamic Music</h3>
+        <p>
+          The game features a dynamic soundtrack. There are three (THREE) original pieces
+          of music, each of which has four parts. When you begin a mission, you only hear
+          a single part. The other parts are selected at random and added to the
+          soundscape when you complete a stage by making a match. We weren't sure it would
+          work, but it's really exciting to hear in action.
+        </p>
+      </div>
+    </div>
+
+    <p class="footer">&laquo; submitted for <a href="http://www.ludumdare.com/compo/ludum-dare-28/?action=preview">Ludum Dare 28</a>, theme: You Only Get One &raquo;</p>
+  </body>
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-37965656-4', 'mildmojo.github.io');
+    ga('send', 'pageview');
+
+  </script>
 </html>
