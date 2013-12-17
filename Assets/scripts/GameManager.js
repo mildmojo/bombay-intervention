@@ -36,7 +36,11 @@ class GameManager extends ScriptableObject {
     }
     // Quit on Escape.
     if (Input.GetKeyDown(KeyCode.Escape)) {
-      SetState(GameState.Quit);
+      #if UNITY_WEBPLAYER
+        SetState(GameState.Menu);
+      #else
+        SetState(GameState.Quit);
+      #endif
     }
     if (Input.GetKeyDown(KeyCode.M)) {
       _audioOutput.volume = 1 - _audioOutput.volume;
