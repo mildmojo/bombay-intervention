@@ -40,6 +40,10 @@ function Update () {
   }
 }
 
+function animDestroy() {
+  isDying = true;
+}
+
 function RecycleTimer() {
   isDying = true;
   _timerAnimator.animRecycle(function(){
