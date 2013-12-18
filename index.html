@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity Web Player | bombay-intervention</title>
+    <title>The Bombay Intervention</title>
     <script type='text/javascript' src='https://ssl-webplayer.unity3d.com/download_webplayer-3.x/3.0/uo/jquery.min.js'></script>
     <script type="text/javascript">
     <!--
@@ -23,6 +23,17 @@
       var u = new UnityObject2(config);
 
       jQuery(function() {
+
+        jQuery('a.download').on('click', function(e) {
+          ga('send', 'pageview', jQuery(e.target).attr('href'));
+        });
+        jQuery('a.contact').on('click', function(e) {
+          ga('send', 'event', 'AuthorClicks', jQuery(e.target).attr('data-analytics-name'));
+        });
+
+       if (navigator.platform === 'MacIntel') {
+          jQuery('p.osx_warning').delay(2000).slideDown();
+        }
 
         var $missingScreen = jQuery("#unityPlayer").find(".missing");
         var $brokenScreen = jQuery("#unityPlayer").find(".broken");
@@ -94,6 +105,13 @@
       top: 50%;
       width: 193px;
     }
+    p.osx_warning {
+      display: none;
+      color: #999;
+      margin: 0;
+      padding: 4px;
+      font-size: 90%;
+    }
     div.broken a,
     div.missing a {
       height: 63px;
@@ -120,6 +138,7 @@
   </head>
   <body>
     <div class="content">
+      <p class="osx_warning">OS X users: Unity plugin flashing/flickering/strobing? Try refreshing the page.</p>
       <div id="unityPlayer">
         <div class="missing">
           <a href="http://unity3d.com/webplayer/" title="Unity Web Player. Install now!">
@@ -150,19 +169,19 @@
       <div class="downloads">
         <h3>Downloads:</h3>
         <p>
-          <a href="bombay-intervention-linux32-0.8.zip">Linux</a><br>
-          <a href="bombay-intervention-win32-0.8.zip">Windows</a><br>
-          <a href="bombay-intervention-osx-0.8.zip">OS X</a><br>
-          <a href="bombay-intervention-android-0.8.apk">Android</a><br>
-          (<a href="https://github.com/mildmojo/bombay-intervention">source</a>)<br>
+          <a class="download" href="bombay-intervention-linux32-0.9.zip">Linux</a><br>
+          <a class="download" href="bombay-intervention-win32-0.9.zip">Windows</a><br>
+          <a class="download" href="bombay-intervention-osx-0.9.zip">OS X</a><br>
+          <a class="download" href="bombay-intervention-android-0.9.apk">Android</a><br>
+          (<a class="download" href="https://github.com/mildmojo/bombay-intervention">source</a>)<br>
         </p>
       </div>
       <div class="details">
         <h3>Details</h3>
-        The Bombay Intervention was a collaboration between <a href="http://jasonmize.com">Jason Mize</a>
-        and mildmojo (<a href="https://twitter.com/mildmojo">twitter</a>,
-        <a href="https://github.com/mildmojo">github</a>,
-        <a href="http://www.ludumdare.com/compo/author/mildmojo/">ld48</a>) for
+        The Bombay Intervention was a collaboration between <a class="contact" data-analytics-name="Jason Mize Home" href="http://jasonmize.com">Jason Mize</a>
+        and mildmojo (<a class="contact" data-analytics-name="mildmojo twitter" href="https://twitter.com/mildmojo">twitter</a>,
+        <a class="contact" data-analytics-name="mildmojo github" href="https://github.com/mildmojo">github</a>,
+        <a class="contact" data-analytics-name="mildmojo ld48" href="http://www.ludumdare.com/compo/author/mildmojo/">ld48</a>) for
         Ludum Dare 28: You Only Get One. Please visit our
         <a href="http://www.ludumdare.com/compo/ludum-dare-28/?action=preview&uid=32157">submission page</a>
         if you'd like to vote or leave us a comment.
