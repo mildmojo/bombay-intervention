@@ -4,12 +4,19 @@ var BUCKET_ASPECT_RATIO = 1.0 / 1.25; // x / y
 var MARGIN_MULT_X = 1.05;
 var MARGIN_MULT_Y = 1.05;
 
-var TIMER_MATCH_MARGIN = 0.5;
-
-var FLAGS_PER_LEVEL = 2;
-var MATCHES_REQUIRED = 3;
-
 class LevelManager extends ScriptableObject {
+  class Mission {
+    var year = 0;
+    var city = '';
+    var crisis = '';
+    var timeLimit = 120;
+    var stageCount = 4;
+    var currentStage = 0;
+    var matchesRequired = 3;
+    var flagCount = 2;
+
+    function name() { return city + ' ' + crisis; }
+  }
   static var _instance : LevelManager;
   var _gameManager : GameManager;
   var _levelTimerText : TextMesh;
@@ -20,12 +27,11 @@ class LevelManager extends ScriptableObject {
   var _lockedTimers = new ArrayList();
   var _timerMinTime = 15.0;
   var _timerMaxTime = 25.0;
-  var _stageNumber = 1;
-  var _missionStageCount = 4;
-  var _missionTimeLimit = 120;
+  var _mission = new Mission();
   var _flagDeck : ShuffleDeck;
   var _musicManager : MusicManager;
   var _currentFlags : Sprite[];
+
 
   static function Instance() {
     if (!_instance) {
@@ -53,10 +59,14 @@ class LevelManager extends ScriptableObject {
     Debug.Log('Level is starting!');
     resetBoard();
     resetLevelState();
-    selectFlags(FLAGS_PER_LEVEL);
-    drawTimers(rows, cols);
-    startLevelTimer();
-    startMusic();
+    selectFlags(_mission.flagCount);
+    selectMission();
+    var startMessage = 'The year is now ' + _mission.year + '. Anticipated target: ' + _mission.city + '.';
+    showBannerText(startMessage, function() {
+      drawTimers(rows, cols);
+      startLevelTimer();
+      startMusic();
+    });
   }
 
   function AddLockedTimer(gameObject : GameObject) {
@@ -97,9 +107,7 @@ class LevelManager extends ScriptableObject {
 
   private function checkMatch() {
     var allTimersMatch = lockedTimersMatch();
-    var enoughPicked = _lockedTimers.Count == MATCHES_REQUIRED;
-Debug.Log('lockedTimers.Count: ' + _lockedTimers.Count);
-Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicked);
+    var enoughPicked = _lockedTimers.Count == _mission.matchesRequired;
 
     // Three possible states:
     // - They don't match (fail)
@@ -117,10 +125,10 @@ Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicke
   }
 
   private function nextStage() {
-    _stageNumber++;
-    Debug.Log('STAGE ' + _stageNumber);
+    _mission.currentStage++;
+    Debug.Log('STAGE ' + _mission.currentStage);
 
-    if (_stageNumber > _missionStageCount) {
+    if (_mission.currentStage > _mission.stageCount) {
       victoryCelebrate();
     } else {
       for (var timer : GameObject in _lockedTimers) {
@@ -144,7 +152,7 @@ Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicke
   }
 
   private function showMissionSuccess() {
-    var text = 'You have averted the ' + MissionPack.Cities.draw() + ' ' + MissionPack.Crises.draw() + '!';
+    var text = 'You have averted the ' + _mission.name() + '!';
     showBannerText(text, function() {
       resetBoard();
       _gameManager.SetState(GameManager.GameState.Menu);
@@ -191,7 +199,7 @@ Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicke
       var lockedTime : int = gameObject.GetComponent.<TimerCountdown>().timeLeft;
       var diff = Mathf.Abs(lockedTime - targetTime);
       var country = gameObject.GetComponent.<FlagManager>().countryName;
-      allMatch = allMatch && diff <= TIMER_MATCH_MARGIN && country == targetCountry;
+      allMatch = allMatch && diff <= 0.1 && country == targetCountry;
     }
 
     return allMatch;
@@ -217,13 +225,19 @@ Debug.Log('allTimersMatch: ' + allTimersMatch + ', enoughPicked: ' + enoughPicke
   }
 
   private function resetLevelState() {
-    _stageNumber = 1;
+    _mission.currentStage = 1;
     _lockedTimers.Clear();
   }
 
   private function selectFlags(count) {
     _currentFlags = new Sprite[count];
     _flagDeck.draw(count).CopyTo(_currentFlags);
+  }
+
+  private function selectMission() {
+    _mission.city = MissionPack.Cities.draw();
+    _mission.crisis = MissionPack.Crises.draw();
+    _mission.year = Random.Range(1850, 1996);
   }
 
   // Instantiate timers/belts
@@ -311,7 +325,7 @@ private function startLevelTimer() {
     box.y = Screen2D.worldHeight() + box.height;
   }
   var countdown = _levelTimerText.gameObject.GetComponent.<LevelTimerCountdown>();
-  countdown.countdownFrom(_missionTimeLimit);
+  countdown.countdownFrom(_mission.timeLimit);
 }
 
 private function startMusic() {
