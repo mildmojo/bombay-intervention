@@ -15,7 +15,6 @@ function setText(text) {
 }
 
 function show() {
-Debug.Log('MOVI');
   var centerPosition = Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, transform.position.z);
   iTween.MoveTo(gameObject, iTween.Hash(
     'position', centerPosition
@@ -26,7 +25,6 @@ Debug.Log('MOVI');
 }
 
 function hide() {
-  Debug.Log('HIDE');
   iTween.MoveTo(gameObject, iTween.Hash(
     'position', transform.position - Vector3(0, Screen2D.worldHeight() * 2, 0)
     ,'easetype', 'easeInOutBack'
@@ -45,14 +43,16 @@ function registerDismissCallback(callback : function()) {
 
 function onComplete() {
   if (_completeCallback) {
-    _completeCallback();
-    _dismissCallback = null;
+    var callback = _completeCallback;
+    _completeCallback = null;
+    callback();
   }
 }
 
 function onDismiss() {
   if (_dismissCallback) {
-    _dismissCallback();
+    var callback = _dismissCallback;
     _dismissCallback = null;
+    callback();
   }
 }
