@@ -1,0 +1,22 @@
+[
+  {
+    "timeLimit": 120,
+    "rows": 2,
+    "cols": 3,
+    "flagCount": 1,
+    "flagsAllowed": ["India"]
+  },
+  {
+    "timeLimit": 120,
+    "rows": 3,
+    "cols": 3,
+    "flagCount": 1
+  },
+  {
+    "timeLimit": 115,
+    "rows": 3,
+    "cols": 4,
+    "flagCount": 2,
+    "beforeText": ["Freeze events within a single country."]
+  }
+]

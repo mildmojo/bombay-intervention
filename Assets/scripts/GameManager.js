@@ -60,7 +60,7 @@ class GameManager extends ScriptableObject {
           _musicManager.cueNextTrack(function() {
             _musicManager.maxVolume = 0.9;
             hideMenu();
-            _levelManager.StartLevel(3, 4);
+            _levelManager.StartLevel(0);
           });
         });
         break;

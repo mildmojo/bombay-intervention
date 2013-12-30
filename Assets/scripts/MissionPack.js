@@ -1,6 +1,73 @@
 #pragma strict
+import MiniJSON;
+import System.Collections.Generic;
 
 class MissionPack {
+  class Mission {
+    var year = 0;
+    var city = '';
+    var crisis = '';
+    var timeLimit = 120;
+    var rows = 0;
+    var cols = 0;
+    var stageCount = 4;
+    var currentStage = 0;
+    var matchesRequired = 3;
+    var flagCount = 2;
+
+    static function fromDict(dict : Dictionary.<String, System.Object>) {
+      var mission = new Mission();
+      for (var key in dict.Keys) {
+        switch(key) {
+          case 'year':
+            mission.year = dict[key];
+            break;
+          case 'city':
+            mission.city = dict[key];
+            break;
+          case 'crisis':
+            mission.crisis = dict[key];
+            break;
+          case 'timeLimit':
+            mission.timeLimit = dict[key];
+            break;
+          case 'rows':
+            mission.rows = dict[key];
+            break;
+          case 'cols':
+            mission.cols = dict[key];
+            break;
+          case 'stageCount':
+            mission.stageCount = dict[key];
+            break;
+          case 'currentStage':
+            mission.currentStage = dict[key];
+            break;
+          case 'matchesRequired':
+            mission.matchesRequired = dict[key];
+            break;
+          case 'flagCount':
+            mission.flagCount = dict[key];
+            break;
+        }
+      }
+      return mission;
+    }
+
+    function name() { return city + ' ' + crisis; }
+  }
+
+  static var Missions = (function(){
+    var missions = new List.<Mission>();
+    var missionAsset = Resources.Load.<TextAsset>('missions');
+    var json = missionAsset.text;
+    var missionObjects = Json.Deserialize(json) as List.<System.Object>;
+    for (var missionObject : Dictionary.<String, System.Object> in missionObjects) {
+      missions.Add(Mission.fromDict(missionObject));
+    }
+    return missions;
+  })();
+
   static var Cities = new ShuffleDeck([
     'Tokyo'
     ,'Seoul'

@@ -5,18 +5,6 @@ var MARGIN_MULT_X = 1.05;
 var MARGIN_MULT_Y = 1.05;
 
 class LevelManager extends ScriptableObject {
-  class Mission {
-    var year = 0;
-    var city = '';
-    var crisis = '';
-    var timeLimit = 120;
-    var stageCount = 4;
-    var currentStage = 0;
-    var matchesRequired = 3;
-    var flagCount = 2;
-
-    function name() { return city + ' ' + crisis; }
-  }
   static var _instance : LevelManager;
   var _gameManager : GameManager;
   var _levelTimerText : TextMesh;
@@ -27,7 +15,8 @@ class LevelManager extends ScriptableObject {
   var _lockedTimers = new ArrayList();
   var _timerMinTime = 15.0;
   var _timerMaxTime = 25.0;
-  var _mission = new Mission();
+  var _mission = new MissionPack.Mission();
+  var _missionNum = 0;
   var _flagDeck : ShuffleDeck;
   var _musicManager : MusicManager;
   var _currentFlags : Sprite[];
@@ -55,15 +44,18 @@ class LevelManager extends ScriptableObject {
     }
   }
 
-  function StartLevel(rows : int, cols : int) {
+  function StartLevel(missionNum : int) {
     Debug.Log('Level is starting!');
     resetBoard();
     resetLevelState();
+    selectMission(missionNum);
     selectFlags(_mission.flagCount);
-    selectMission();
-    var startMessage = 'The year is now ' + _mission.year + '. Anticipated target: ' + _mission.city + '.';
+    var startMessage = 'MISSION No. ' + (missionNum + 1) + '\n' +
+                       'The year: ' + _mission.year + '.' +
+                       ' Expected target: ' + _mission.city + '.';
     showBannerText(startMessage, function() {
-      drawTimers(rows, cols);
+      Debug.Log('Grid size: ' + _mission.cols + ' x ' + _mission.rows);
+      drawTimers(_mission.rows, _mission.cols);
       startLevelTimer();
       startMusic();
     });
@@ -128,8 +120,10 @@ class LevelManager extends ScriptableObject {
     _mission.currentStage++;
     Debug.Log('STAGE ' + _mission.currentStage);
 
-    if (_mission.currentStage > _mission.stageCount) {
-      victoryCelebrate();
+    if (_mission.currentStage >= _mission.stageCount) {
+      victoryCelebrate(function() {
+        nextMission();
+      });
     } else {
       for (var timer : GameObject in _lockedTimers) {
         timer.SendMessage('RecycleTimer');
@@ -139,7 +133,17 @@ class LevelManager extends ScriptableObject {
     }
   }
 
-  private function victoryCelebrate() {
+  private function nextMission() {
+    if (++_missionNum < MissionPack.Missions.Count) {
+      StartLevel(_missionNum);
+    } else {
+      showGameSuccess(function() {
+        _gameManager.SetState(GameManager.GameState.Menu);
+      });
+    }
+  }
+
+  private function victoryCelebrate(callback : function()) {
     // If all stages complete, show mission victory message/animation, go to
     //   next level.
     _musicManager.fadeStop();
@@ -148,15 +152,17 @@ class LevelManager extends ScriptableObject {
     iTween.Stop();
     _root.BroadcastMessage('animDestroy');
     stopLevelTimer();
-    showMissionSuccess();
+    showMissionSuccess(callback);
   }
 
-  private function showMissionSuccess() {
+  private function showMissionSuccess(callback : function()) {
     var text = 'You have averted the ' + _mission.name() + '!';
-    showBannerText(text, function() {
-      resetBoard();
-      _gameManager.SetState(GameManager.GameState.Menu);
-    });
+    showBannerText(text, callback);
+  }
+
+  private function showGameSuccess(callback : function()) {
+    var text = 'All interventions successful! Congratulations!';
+    showBannerText(text, callback);
   }
 
   private function failMatch() {
@@ -234,10 +240,12 @@ class LevelManager extends ScriptableObject {
     _flagDeck.draw(count).CopyTo(_currentFlags);
   }
 
-  private function selectMission() {
-    _mission.city = MissionPack.Cities.draw();
-    _mission.crisis = MissionPack.Crises.draw();
-    _mission.year = Random.Range(1850, 1996);
+  private function selectMission(missionNum) {
+    _missionNum = missionNum;
+    _mission = MissionPack.Missions[_missionNum];
+    _mission.city = _mission.city != '' ? _mission.city : MissionPack.Cities.draw();
+    _mission.crisis = _mission.crisis != '' ? _mission.crisis : MissionPack.Crises.draw();
+    _mission.year = _mission.year != 0 ? _mission.year : Random.Range(1850, 1996);
   }
 
   // Instantiate timers/belts
