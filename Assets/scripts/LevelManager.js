@@ -17,10 +17,10 @@ class LevelManager extends ScriptableObject {
   var _timerMaxTime = 25.0;
   var _mission = new MissionPack.Mission();
   var _missionNum = 0;
+  var _stageNum = 0;
   var _flagDeck : ShuffleDeck;
   var _musicManager : MusicManager;
   var _currentFlags : Sprite[];
-
 
   static function Instance() {
     if (!_instance) {
@@ -117,10 +117,10 @@ class LevelManager extends ScriptableObject {
   }
 
   private function nextStage() {
-    _mission.currentStage++;
-    Debug.Log('STAGE ' + _mission.currentStage);
+    _stageNum++;
+    Debug.Log('STAGE ' + _stageNum);
 
-    if (_mission.currentStage >= _mission.stageCount) {
+    if (_stageNum >= _mission.stageCount) {
       victoryCelebrate(function() {
         nextMission();
       });
@@ -185,7 +185,7 @@ class LevelManager extends ScriptableObject {
   private function showMissionFail() {
     var failMessage = MissionPack.Failures.draw();
     showBannerText(failMessage, function() {
-      resetBoard();
+      // resetBoard();
       _gameManager.SetState(GameManager.GameState.Menu);
     });
   }
@@ -233,7 +233,7 @@ class LevelManager extends ScriptableObject {
   }
 
   private function resetLevelState() {
-    _mission.currentStage = 1;
+    _stageNum = 0;
     _lockedTimers.Clear();
   }
 

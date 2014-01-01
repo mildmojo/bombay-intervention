@@ -11,7 +11,6 @@ class MissionPack {
     var rows = 0;
     var cols = 0;
     var stageCount = 4;
-    var currentStage = 0;
     var matchesRequired = 3;
     var flagCount = 2;
 
@@ -39,9 +38,6 @@ class MissionPack {
             break;
           case 'stageCount':
             mission.stageCount = dict[key];
-            break;
-          case 'currentStage':
-            mission.currentStage = dict[key];
             break;
           case 'matchesRequired':
             mission.matchesRequired = dict[key];

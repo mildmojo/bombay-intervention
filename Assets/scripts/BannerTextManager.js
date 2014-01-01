@@ -1,9 +1,11 @@
 private var _completeCallback : function();
 private var _dismissCallback : function();
 private var _text : TextMesh;
+private var _gameObject2D : TwoDee;
 
 function Start() {
   _text = transform.Find('Text').GetComponent.<TextMesh>();
+  _gameObject2D = new TwoDee(gameObject);
 }
 
 function OnMouseDown() {
@@ -26,7 +28,7 @@ function show() {
 
 function hide() {
   iTween.MoveTo(gameObject, iTween.Hash(
-    'position', transform.position - Vector3(0, Screen2D.worldHeight() * 2, 0)
+    'position', Vector3(Camera.main.transform.position.x, -(_gameObject2D.height * 1.25), 0)
     ,'easetype', 'easeInOutBack'
     ,'time', 1.0
     ,'oncomplete', 'onDismiss'

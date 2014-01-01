@@ -95,7 +95,7 @@ class GameManager extends ScriptableObject {
         _musicManager.playMore();
       });
     });
-    var centerPosition = Vector3(Camera.main.transform.position.x, Camera.main.transform.position.y, _splash.transform.position.z);
+    var centerPosition = Screen2D.worldCenterAtZ(_splash);
     iTween.MoveTo(_splash, iTween.Hash(
       'position', centerPosition
       ,'easetype', 'easeInOutBack'
@@ -116,7 +116,7 @@ Debug.Log('splash: ' + _splash);
     //   ,'time', 1.0
     // ));
     iTween.MoveTo(_splash, iTween.Hash(
-      'position', _splash.transform.position + Vector3(0,Screen2D.worldHeight() * 1.5,0)
+      'position', _splash.transform.position + Vector3(0, Screen2D.worldHeight() * 1.5, 0)
       ,'easetype', 'easeInOutBack'
       ,'time', 1.0
     ));

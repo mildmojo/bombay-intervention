@@ -75,7 +75,7 @@ PlayerSettings:
     Others: 1
   iPhoneBundleIdentifier: com.MizeVsMildmojo.BombayIntervention
   productGUID: 224754e8cb5ff90408443c9203565054
-  iPhoneBundleVersion: 0.10
+  iPhoneBundleVersion: 0.11
   AndroidBundleVersionCode: 1
   AndroidMinSdkVersion: 9
   AndroidPreferredInstallLocation: 1
