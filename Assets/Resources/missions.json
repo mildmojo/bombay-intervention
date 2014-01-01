@@ -13,10 +13,22 @@
     "flagCount": 1
   },
   {
-    "timeLimit": 115,
+    "timeLimit": 110,
     "rows": 3,
     "cols": 4,
     "flagCount": 2,
     "beforeText": ["Freeze events within a single country."]
-  }
+  },
+  {
+    "timeLimit": 100,
+    "rows": 4,
+    "cols": 4,
+    "flagCount": 2,
+  },
+  {
+    "timeLimit": 90,
+    "rows": 4,
+    "cols": 4,
+    "flagCount": 3,
+  },
 ]
