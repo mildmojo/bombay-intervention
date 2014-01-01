@@ -146,7 +146,8 @@ class LevelManager extends ScriptableObject {
   private function victoryCelebrate(callback : function()) {
     // If all stages complete, show mission victory message/animation, go to
     //   next level.
-    _musicManager.fadeStop();
+    stopMusic();
+    nextMusic();
     _sfx.play('MissionSuccess');
     Debug.Log('WIN!');
     iTween.Stop();
@@ -171,7 +172,8 @@ class LevelManager extends ScriptableObject {
 
   private function failMission() {
     // TODO: bad stuff when mission fails. back to menu.
-    _musicManager.fadeStop();
+    stopMusic();
+    nextMusic();
     _sfx.play('MissionFail');
     Debug.Log('FAIL!');
     iTween.Stop();
@@ -344,6 +346,6 @@ private function stopMusic() {
   _musicManager.fadeStop();
 }
 
-private function musicNext() {
+private function nextMusic() {
   _musicManager.cueNextTrack();
 }
